@@ -3,27 +3,20 @@
 package fontinstall
 
 import (
-	"errors"
 	"syscall"
 	"unsafe"
 )
 
 func InstallFont(localPath string) error {
-	name, err := syscall.UTF16PtrFromString(localPath)
-	if err != nil {
-		return err
-	}
-
-	handle, _, _ := syscall.SyscallN(
-		syscall.NewLazyDLL("gdi32.dll").NewProc("AddFontResourceW").Addr(),
-		1,
-		uintptr(unsafe.Pointer(name)),
+	var gdi32 = syscall.NewLazyDLL("gdi32.dll")
+	var addFont = gdi32.NewProc("AddFontResourceExW")
+	ret, _, err := addFont.Call(
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(localPath))),
 		0,
 		0,
 	)
-
-	if handle == 0 {
-		return errors.New("install font failed")
+	if ret == 0 {
+		return err
 	}
 	return nil
 }
