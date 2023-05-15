@@ -1,9 +1,8 @@
 package resource
 
 import (
-	"io"
+	"encoding/json"
 	"net/http"
-	"os"
 )
 
 type FontResourceInfo struct {
@@ -16,21 +15,16 @@ type FontResourceInfo struct {
 	Md5          string `json:"md5"`
 }
 
-func downloadFont(fontUrl string, fontName string) error {
-	resp, err := http.Get(fontUrl)
+func GetFontResourceInfoList() ([]FontResourceInfo, error) {
+	resp, err := http.Get("https://hub.czyt.tech/fonts")
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer resp.Body.Close()
-	fFont, err := os.Create(fontName)
+	fontResourceInfoList := make([]FontResourceInfo, 0, 100)
+	err = json.NewDecoder(resp.Body).Decode(&fontResourceInfoList)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer fFont.Close()
-	_, err = io.Copy(fFont, resp.Body)
-	if err != nil {
-		return err
-	}
-	return nil
-
+	return fontResourceInfoList, nil
 }

@@ -2,11 +2,10 @@ package resource
 
 import "testing"
 
-func TestDownloadFont(t *testing.T) {
-	err := downloadFont("http://fontguru.czyt.tech/3270NerdFont-Condensed.ttf?e=1684073625\\u0026token=lUkkMTqUK-fY7t6Tbg7zq-p3iaopntRMOQOkEEDW:sJ_b3lvDcqQ7KEkWYjUqHFGFUXI=",
-		"test.ttf")
+func TestGetFontResourceInfoList(t *testing.T) {
+	resourceInfoList, err := GetFontResourceInfoList()
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log("success")
+	t.Log(len(resourceInfoList))
 }
