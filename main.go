@@ -17,7 +17,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	wg := sync.WaitGroup{}
+	wg := &sync.WaitGroup{}
 	s := spinner.New(spinner.CharSets[11], 100*time.Millisecond)
 	s.Prefix = "正在安装字体，请稍后..."
 	s.Start()
@@ -47,7 +47,7 @@ func main() {
 	s.Stop()
 }
 
-func processFont(info resource.FontResourceInfo, wg sync.WaitGroup) {
+func processFont(info resource.FontResourceInfo, wg *sync.WaitGroup) {
 	defer wg.Done()
 	if err := fontdl.Download(info.DownloadUrl, info.FontFileName); err != nil {
 		log.Println("download font:", info.FontFileName, "failed:", err)
