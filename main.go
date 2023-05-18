@@ -1,11 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fontguru/internal/fontdl"
 	"fontguru/internal/fontinstall"
 	"fontguru/internal/resource"
 	"github.com/briandowns/spinner"
 	"log"
+	"os"
 	"sync"
 	"time"
 )
@@ -19,9 +21,27 @@ func main() {
 	s := spinner.New(spinner.CharSets[11], 100*time.Millisecond)
 	s.Prefix = "正在安装字体，请稍后..."
 	s.Start()
-	wg.Add(len(resourceInfoList))
+
 	for _, info := range resourceInfoList {
-		go processFont(info, wg)
+		if stat, err := os.Stat(info.FontFileName); errors.Is(err, os.ErrNotExist) {
+			log.Println("start to download:", info.FontFileName)
+			wg.Add(1)
+			go processFont(info, wg)
+
+		} else {
+
+			if stat.Size() != int64(info.FileSize) {
+				log.Println("size not correct:", info.FontFileName)
+				os.Remove(info.FontFileName)
+				log.Println("re-download:", info.FontFileName)
+				wg.Add(1)
+				go processFont(info, wg)
+			}
+
+			continue
+
+		}
+
 	}
 	wg.Wait()
 	s.Stop()

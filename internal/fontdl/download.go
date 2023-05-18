@@ -16,11 +16,14 @@ func Download(fontUrl string, fontName string) error {
 	if err != nil {
 		return err
 	}
-	defer fFont.Close()
+
 	_, err = io.Copy(fFont, resp.Body)
 	if err != nil {
+		fFont.Close()
+		os.Remove(fontName)
 		return err
 	}
+	fFont.Close()
 	return nil
 
 }
